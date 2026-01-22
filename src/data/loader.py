@@ -45,6 +45,15 @@ def _repo_root() -> Path:
     return Path(__file__).resolve().parents[2]
 
 
+def _find_anywhere(name: str) -> Path | None:
+    root = _repo_root()
+    for ext in SUPPORTED_EXTS:
+        matches = list(root.rglob(f"{name}{ext}"))
+        if matches:
+            return matches[0]
+    return None
+
+
 def load_processed_table(data_dir: Path, name: str) -> pd.DataFrame:
     primary_dir = data_dir / "processed"
     try:
@@ -55,6 +64,9 @@ def load_processed_table(data_dir: Path, name: str) -> pd.DataFrame:
         if fallback_dir != primary_dir:
             path = _resolve_table_path(fallback_dir, name)
             return load_table(path)
+        found = _find_anywhere(name)
+        if found:
+            return load_table(found)
         raise
 
 
@@ -71,6 +83,9 @@ def load_mart_table(data_dir: Path, name: str, fallback_processed: Optional[str]
                 return load_table(path)
             except FileNotFoundError:
                 pass
+        found = _find_anywhere(name)
+        if found:
+            return load_table(found)
         if fallback_processed:
             return load_processed_table(data_dir, fallback_processed)
         raise

@@ -20,8 +20,17 @@ filters = st.session_state.get("global_filters", {})
 render_header("Quote Builder", ["Company", "Quote Builder"])
 render_filter_chips({k: v for k, v in filters.items() if isinstance(v, list) and v})
 
-fact_timesheet = load_processed_table(config.data_dir, "fact_timesheet_day_enriched")
-mart_tasks = load_mart_table(config.data_dir, "cube_dept_category_task", fallback_processed="fact_timesheet_day_enriched")
+try:
+    fact_timesheet = load_processed_table(config.data_dir, "fact_timesheet_day_enriched")
+except FileNotFoundError as exc:
+    st.error(str(exc))
+    st.stop()
+
+try:
+    mart_tasks = load_mart_table(config.data_dir, "cube_dept_category_task", fallback_processed="fact_timesheet_day_enriched")
+except FileNotFoundError as exc:
+    st.error(str(exc))
+    st.stop()
 
 
 dept_options = sorted(fact_timesheet["department_final"].dropna().unique())

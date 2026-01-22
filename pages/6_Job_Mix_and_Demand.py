@@ -17,8 +17,12 @@ filters = st.session_state.get("global_filters", {})
 render_header("Job Mix & Demand", ["Company", "Job Mix"])
 render_filter_chips({k: v for k, v in filters.items() if isinstance(v, list) and v})
 
-fact_job_task = load_processed_table(config.data_dir, "fact_job_task_month")
-fact_timesheet = load_processed_table(config.data_dir, "fact_timesheet_day_enriched")
+try:
+    fact_job_task = load_processed_table(config.data_dir, "fact_job_task_month")
+    fact_timesheet = load_processed_table(config.data_dir, "fact_timesheet_day_enriched")
+except FileNotFoundError as exc:
+    st.error(str(exc))
+    st.stop()
 
 cohort = st.selectbox("Cohort Definition", ["A", "B", "C"], index=0)
 st.session_state["cohort_definition"] = cohort

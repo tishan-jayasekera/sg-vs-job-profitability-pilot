@@ -47,7 +47,11 @@ def apply_time_filter(df):
 
 import pandas as pd
 
-fact_timesheet = load_processed_table(config.data_dir, "fact_timesheet_day_enriched")
+try:
+    fact_timesheet = load_processed_table(config.data_dir, "fact_timesheet_day_enriched")
+except FileNotFoundError as exc:
+    st.error(str(exc))
+    st.stop()
 fact_timesheet = apply_time_filter(fact_timesheet)
 
 if filters.get("exclude_leave"):

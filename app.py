@@ -14,7 +14,7 @@ init_state()
 
 try:
     fact_timesheet = load_processed_table(config.data_dir, "fact_timesheet_day_enriched")
-except Exception:
+except FileNotFoundError:
     fact_timesheet = None
 
 st.sidebar.title("SG Profitability OS")

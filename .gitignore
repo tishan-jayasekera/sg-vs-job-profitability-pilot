@@ -1,0 +1,19 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+.venv/
+.venv*/
+.env
+.streamlit/secrets.toml
+
+# Data
+/data/processed/
+/data/marts/
+
+# Streamlit
+.streamlit/config.toml.bak
+
+# OS
+.DS_Store

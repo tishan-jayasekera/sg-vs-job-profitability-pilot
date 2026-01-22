@@ -15,7 +15,11 @@ filters = st.session_state.get("global_filters", {})
 render_header("Active Delivery", ["Company", "Active Delivery"])
 render_filter_chips({k: v for k, v in filters.items() if isinstance(v, list) and v})
 
-fact_timesheet = load_processed_table(config.data_dir, "fact_timesheet_day_enriched")
+try:
+    fact_timesheet = load_processed_table(config.data_dir, "fact_timesheet_day_enriched")
+except FileNotFoundError as exc:
+    st.error(str(exc))
+    st.stop()
 active_jobs = active_projects_pack(fact_timesheet, config.active_job_recency_days)
 
 st.subheader("At-Risk Jobs")

@@ -41,9 +41,21 @@ def load_table(path: str | Path) -> pd.DataFrame:
     raise ValueError(f"Unsupported file extension: {path.suffix}")
 
 
+def _repo_root() -> Path:
+    return Path(__file__).resolve().parents[2]
+
+
 def load_processed_table(data_dir: Path, name: str) -> pd.DataFrame:
-    path = _resolve_table_path(data_dir / "processed", name)
-    return load_table(path)
+    primary_dir = data_dir / "processed"
+    try:
+        path = _resolve_table_path(primary_dir, name)
+        return load_table(path)
+    except FileNotFoundError:
+        fallback_dir = _repo_root() / "data" / "processed"
+        if fallback_dir != primary_dir:
+            path = _resolve_table_path(fallback_dir, name)
+            return load_table(path)
+        raise
 
 
 def load_mart_table(data_dir: Path, name: str, fallback_processed: Optional[str] = None) -> pd.DataFrame:
@@ -52,6 +64,13 @@ def load_mart_table(data_dir: Path, name: str, fallback_processed: Optional[str]
         path = _resolve_table_path(mart_dir, name)
         return load_table(path)
     except FileNotFoundError:
+        fallback_dir = _repo_root() / "data" / "marts"
+        if fallback_dir != mart_dir:
+            try:
+                path = _resolve_table_path(fallback_dir, name)
+                return load_table(path)
+            except FileNotFoundError:
+                pass
         if fallback_processed:
             return load_processed_table(data_dir, fallback_processed)
         raise
